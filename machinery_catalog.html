@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturer System Documentation & Live Catalog App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #25d366;
+            --success-hover: #20ba5a;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Documentation Panel Layout styling */
+        .doc-section {
+            max-width: 1000px;
+            margin: 2rem auto;
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .doc-header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .doc-header h1 {
+            color: #1e3a8a;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .doc-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        h2 {
+            color: #1e3a8a;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        ul {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .setup-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            padding: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+
+        .setup-box h4 {
+            color: #14532d;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Live App Separator styling */
+        .app-separator {
+            text-align: center;
+            margin: 4rem 0 2rem 0;
+            position: relative;
+        }
+
+        .app-separator hr {
+            border: 0;
+            height: 2px;
+            background: #cbd5e1;
+        }
+
+        .app-separator span {
+            background: #1e3a8a;
+            color: #ffffff;
+            padding: 0.5rem 2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* -------------------------------------------
+           LIVE APP INTERFACE STYLING BEGINS HERE
+        ------------------------------------------- */
+        .app-container {
+            max-width: 1100px;
+            margin: 0 auto 5rem auto;
+            padding: 0 1rem;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .app-header h2 {
+            font-size: 2.25rem;
+            color: #111827;
+            margin: 0 0 0.5rem 0;
+            border: none;
+            padding: 0;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.9rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 234, 0.15);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .media-container {
+            position: relative;
+            background: #000;
+            height: 240px;
+        }
+
+        .media-item {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .media-item.active {
+            display: block;
+        }
+
+        .media-toggle {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .toggle-btn {
+            background: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            border: none;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            transition: background 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.75rem;
+        }
+
+        .product-desc {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        .share-btn:hover {
+            background-color: var(--success-hover);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: #fff;
+            padding: 0.8rem 1.75rem;
+            border-radius: 30px;
+            font-size: 0.92rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px dashed var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="doc-section">
+        <div class="doc-header">
+            <h1>System Documentation & User Manual</h1>
+            <p>Product Search & Instant WhatsApp Catalog Extraction System</p>
+        </div>
+
+        <h2>Project Functional Overview</h2>
+        <p>This single-document architecture acts as a lightweight tool designed for machinery manufacturers. It integrates software instructions with an operational product catalog, cutting down the latency typical of multi-page enterprise software.</p>
+
+        <h2>Core Mechanical Features</h2>
+        <ul>
+            <li><strong>Instant Client-Side Filtering:</strong> The integrated search box screens data sets via cache keywords instantly without firing network requests.</li>
+            <li><strong>Asynchronous Local Media Player:</strong> Allows shifting from standard flat sample photographs directly to dynamic running video recordings without breaking user flow.</li>
+            <li><strong>One-Tap Native Clipboard Export:</strong> Extracts technical item specs, wraps them in clean asterisk strings tailored for WhatsApp styling guidelines, and targets the platform clipboard instantly.</li>
+        </ul>
+
+        <div class="setup-box">
+            <h4>How to save and run this program:</h4>
+            <ol style="padding-left: 1.25rem;">
+                <li>Click <strong>Ctrl + S</strong> (or select File &rarr; Save Page As) right inside your web browser.</li>
+                <li>Name the file <code>index.html</code> or <code>catalog.html</code> and save it directly into the folder where your machine photos and video assets live.</li>
+                <li>Ensure your image files match <code>images.jpg</code> and <code>download.jpg</code>. Double-click the file anytime to launch!</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="app-separator">
+        <hr>
+        <span>LIVE APPLICATION DEMO BELOW</span>
+    </div>
+
+    <div class="app-container">
+        <div class="app-header">
+            <h2>Industrial Machinery Catalog</h2>
+            <p>Query stock data and copy clipboard strings for direct client chat injection</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchBar" class="search-input" placeholder="Search by name, category, hardware keys (e.g. 'sealer', 'rice mill', 'pouch')...">
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            
+            <div class="product-card" data-keywords="continuous band sealer pouch packing machine sealing upack">
+                <div class="media-container">
+                    <img src="images.jpg" alt="Continuous Band Sealer" class="media-item media-img-1 active">
+                    <video src="AQPDZYsLQ34tFFwqi59xFQhtc2b5BhiqyxsEg2QMVZ7I4614tzLq5lGWj9pUKd62pDdr7D3vHBYpHiIDeq-cgt2x26YQMgn9Oo4AsYY.mp4" class="media-item media-vid-1" loop muted playsinline></video>
+                    <div class="media-toggle">
+                        <button class="toggle-btn active" onclick="switchMedia(this, 'img', 1)">Photo</button>
+                        <button class="toggle-btn" onclick="switchMedia(this, 'vid', 1)">Video</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <span class="product-type">Packaging Machinery</span>
+                    <h3 class="product-title">Continuous Band Sealer Machine</h3>
+                    <p class="product-desc">High-speed, automatic industrial sealing machine featuring an integrated conveyor belt. Ideal for continuous pouch packing, precise temperature adjustments, and clean, high-production commercial sealing output.</p>
+                    <button class="share-btn" onclick="shareProduct('Continuous Band Sealer Machine', 'Packaging Machinery', 'High-speed, automatic industrial sealing machine featuring an integrated conveyor belt. Ideal for continuous pouch packing.')">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.858.002-2.634-1.023-5.11-2.885-6.974C16.526 1.849 14.05 .824 11.415.824c-5.44 0-9.866 4.423-9.87 9.86-.001 1.74.463 3.442 1.344 4.953l-1.011 3.7 3.79-.993zm11.447-6.85c-.328-.164-1.94-.957-2.242-1.066-.301-.11-.522-.164-.743.164-.221.328-.855 1.066-1.048 1.285-.192.219-.384.246-.712.083-.328-.164-1.386-.51-2.64-1.627-.975-.87-1.633-1.944-1.825-2.272-.192-.328-.02-.505.144-.668.148-.147.328-.383.493-.574.164-.192.219-.328.328-.547.11-.219.055-.411-.027-.574-.082-.164-.743-1.79-.1015-2.426-.265-.64-.538-.553-.743-.563-.21-.01-.452-.011-.693-.011-.242 0-.638.09-1.015.5-.377.411-1.44 1.408-1.44 3.434 0 2.025 1.474 3.982 1.678 4.256.204.274 2.902 4.432 7.03 6.213 2.572 1.107 3.513.886 4.764.7c1.252-.187 2.242-.716 2.556-1.503.314-.787.314-1.462.221-1.604-.093-.142-.342-.228-.671-.392z"/></svg>
+                        Copy WhatsApp Info
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-card" data-keywords="mini paddy rice mill grinder processing agricultural huller screen">
+                <div class="media-container">
+                    <img src="download.jpg" alt="Mini Paddy Rice Mill" class="media-item media-img-2 active">
+                    <video src="AQNGHyzhEqi0wiwztUWXzGvLmr4DhQkdnYRZ42EtuNMw0JaPVOgbG6gfnyYHb266Gt2cwX0bNizWwb7wFZsT-Qly.mp4" class="media-item media-vid-2" loop muted playsinline></video>
+                    <div class="media-toggle">
+                        <button class="toggle-btn active" onclick="switchMedia(this, 'img', 2)">Photo</button>
+                        <button class="toggle-btn" onclick="switchMedia(this, 'vid', 2)">Video</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <span class="product-type">Agricultural Machinery</span>
+                    <h3 class="product-title">Combined Rice Mill & Grinder</h3>
+                    <p class="product-desc">Dual-purpose modern mill with built-in paddy separation screen and cyclone dust collector. Automatically processes clean raw rice and refines husk into high-quality bran in a single compact operation.</p>
+                    <button class="share-btn" onclick="shareProduct('Combined Rice Mill & Grinder', 'Agricultural Machinery', 'Dual-purpose mill with built-in paddy separation screen and cyclone dust collector. Processes raw rice and husk simultaneously.')">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.858.002-2.634-1.023-5.11-2.885-6.974C16.526 1.849 14.05 .824 11.415.824c-5.44 0-9.866 4.423-9.87 9.86-.001 1.74.463 3.442 1.344 4.953l-1.011 3.7 3.79-.993zm11.447-6.85c-.328-.164-1.94-.957-2.242-1.066-.301-.11-.522-.164-.743.164-.221.328-.855 1.066-1.048 1.285-.192.219-.384.246-.712.083-.328-.164-1.386-.51-2.64-1.627-.975-.87-1.633-1.944-1.825-2.272-.192-.328-.02-.505.144-.668.148-.147.328-.383.493-.574.164-.192.219-.328.328-.547.11-.219.055-.411-.027-.574-.082-.164-.743-1.79-.1015-2.426-.265-.64-.538-.553-.743-.563-.21-.01-.452-.011-.693-.011-.242 0-.638.09-1.015.5-.377.411-1.44 1.408-1.44 3.434 0 2.025 1.474 3.982 1.678 4.256.204.274 2.902 4.432 7.03 6.213 2.572 1.107 3.513.886 4.764.7c1.252-.187 2.242-.716 2.556-1.503.314-.787.314-1.462.221-1.604-.093-.142-.342-.228-.671-.392z"/></svg>
+                        Copy WhatsApp Info
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="toast" id="toastMessage">Text copied! Ready to paste directly into WhatsApp.</div>
+
+    <script>
+        // Media Toggle Handler (Photo/Video Router)
+        function switchMedia(button, type, id) {
+            const container = button.closest('.media-container');
+            const img = container.querySelector(`.media-img-${id}`);
+            const vid = container.querySelector(`.media-vid-${id}`);
+            const buttons = container.querySelectorAll('.toggle-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            if (type === 'img') {
+                vid.classList.remove('active');
+                vid.pause();
+                img.classList.add('active');
+            } else if (type === 'vid') {
+                img.classList.remove('active');
+                vid.classList.add('active');
+                vid.play().catch(e => console.log("Video track playback pending active trigger", e));
+            }
+        }
+
+        // Live Real-time Text Filter Runtime
+        const searchBar = document.getElementById('searchBar');
+        const cards = document.querySelectorAll('.product-card');
+        const grid = document.getElementById('productGrid');
+
+        searchBar.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const searchKeywords = card.getAttribute('data-keywords');
+                const title = card.querySelector('.product-title').innerText.toLowerCase();
+                
+                if (searchKeywords.includes(query) || title.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Empty State Dom Injection Control
+            const existingNoRes = document.querySelector('.no-results');
+            if (visibleCount === 0) {
+                if (!existingNoRes) {
+                    const noResMessage = document.createElement('div');
+                    noResMessage.className = 'no-results';
+                    noResMessage.innerHTML = '<h3>No machinery products match your specifications</h3><p>Try clearing your keywords or checking spelling inputs.</p>';
+                    grid.appendChild(noResMessage);
+                }
+            } else if (existingNoRes) {
+                existingNoRes.remove();
+            }
+        });
+
+        // WhatsApp Custom Formatter and Clipboard Router
+        function shareProduct(name, type, desc) {
+            const messageText = `*PRODUCT CATALOG ENTRY*\n\n` +
+                                `*Product Name:* \${name}\n` +
+                                `*Category:* \${type}\n` +
+                                `*Description:* \${desc}\n\n` +
+                                `Please feel free to connect back if you need pricing details or specific quotes!`;
+
+            navigator.clipboard.writeText(messageText).then(() => {
+                showToast();
+            }).catch(() => {
+                // Secondary Input element fallback routine if permissions are limited
+                const tempInput = document.createElement('textarea');
+                tempInput.value = messageText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast();
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toastMessage');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
